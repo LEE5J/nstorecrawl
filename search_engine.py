@@ -1,5 +1,4 @@
 import sys, traceback, selenium, time, requests
-import pywinauto
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -7,7 +6,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from tools import *
 from PyQt5.QtCore import QThread, pyqtSignal
-from pywinauto import Application
 
 def crawl_a_item_nstore(url):
     product = Product()
