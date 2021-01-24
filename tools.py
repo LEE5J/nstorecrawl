@@ -10,8 +10,13 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-data = {'국산': '00', '원양산': '01', '수입산': '02', '상세설명에 표시': '03',
-        '직접입력': '04', '원산지 표기 의무대상 아님': '05', '강원도': '0001',
+data = {'국산': '00',
+        '원양산': '01',
+        '수입산': '02',
+        '상세설명에 표시': '03',
+        '직접입력': '04',
+        '원산지 표기 의무대상 아님': '05',
+        '강원도': '0001',
         '경기도': '0002',
         '경상남도': '0003',
         '경상북도': '0004',
@@ -583,7 +588,7 @@ def search_category(search_word):
 
 
 def return_int(text):
-    text = text.replace('(', '').replace(')', '').replace('원', '').replace(',', '')
+    text = text.replace('(', '').replace(')', '').replace('원', '').replace(',', '').replace('품절', '')
     try:
         price = int(text)
         print(text + "를 가격으로 변환")
@@ -609,8 +614,8 @@ def get_nameNprice(text):
             name = text
     elif ' (-' in text:
         try:
-            price = -int(text.split(' (-')[-1])
-            if len(return_int(text.split(' (-')[-1])) == 2:
+            price = -int(return_int(text.split(' (-')[-1]))
+            if len(text.split(' (-')) == 2:
                 name = text.split(' (-')[0]
             else:
                 word = str()
@@ -893,7 +898,7 @@ def convert_to_frame(product, prefix):
         line.append("")  # 추가상품재고수량
     else:
         addopt_title = str()
-        for i in range(product.option_layer, len(product.option_title_list)):
+        for i in range(product.option_layer + product.option_offset, len(product.option_title_list)):
             addopt_title += product.option_title_list[i]
             if i != len(product.option_title_list)-1:
                 addopt_title += '\n'
@@ -971,3 +976,4 @@ class Product:
         self.specialnote = ""
         self.certifiedinfo = ""
         self.option_title_list = []
+        self.option_offset = 0

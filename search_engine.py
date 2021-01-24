@@ -75,6 +75,7 @@ def crawl_a_item_nstore(url):
         if option_layer == -1:
             option_layer = len(option_box)
         option_offset = len(driver.find_elements_by_css_selector('fieldset > div > div > input')) # 직접입력은 입력받지 않음
+        product.option_offset = option_offset  # 입력형은 제외하고 반영하며 이는 오프셋으로 조정함
         option_layer = option_layer - option_offset
         options = driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > a')
         options[0].click()
@@ -135,7 +136,8 @@ def crawl_a_item_nstore(url):
     addopt_num = len(driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > a')) - option_layer
     if addopt_num != 0:
         addopt = driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > a')
-        for i in range(option_layer,option_layer + addopt_num):
+        for i in range(option_layer, option_layer + addopt_num):
+            print(f"추가 옵션 수집 {i}")
             addopt[i].click()
             addopt_name_list = []
             addopt_price_list = []
@@ -161,6 +163,8 @@ def crawl_a_item_nstore(url):
         detail_list = driver.find_elements_by_css_selector('div.se-main-container > div')
         if len(detail_list) != 0:
             for detail_box in detail_list:
+                if 32000 < len(product.detail_html):
+                    break
                 try:
                     content = detail_box.find_element_by_css_selector('a > img')
                     print("일반 이미지")
@@ -190,11 +194,13 @@ def crawl_a_item_nstore(url):
                     if content != None:
                         word_list = content.text.split('\n')
                         for word in word_list:
-                            product.detail_html += f"<p><span style=\"color:#000000;\">{word}</span></p>"
+                            product.detail_html += f"<p><center><span style=\" font-size:2em;color:#000000;\">{word}</span></center></p>"
                 except selenium.common.exceptions.NoSuchElementException:
                     None
                 except:
                     traceback.print_exc()
+    if 32766 < len(product.detail_html):
+        product.detail_html = product.detail_html[0:32765]
     if maxtime < time.time():
         print("타임오버")
     else:
@@ -254,14 +260,23 @@ def upload_items(driver, excel_path):
     for i in range(len(jpg_pathes)):
         driver.find_element_by_css_selector(
             '#seller-content > ui-view > div > div.panel.panel-seller > div > div:nth-child(1) > div.seller-btn-right > div > button:nth-child(3)').click()
+        while len(driver.window_handles) != 2:
+            print("창이 뜰때까지 대기중")
         driver.switch_to.window(driver.window_handles[-1])
         # full_img_path_str += f"{resource_path(jpg_pathes[i])}"
+        time.sleep(0.3)
         driver.find_element_by_css_selector('body > div > input').send_keys(os.path.abspath(jpg_pathes[i]))
         print(os.path.abspath(jpg_pathes[i]))
         WebDriverWait(driver, 10).until(EC.presence_of_element_located(
             (By.CSS_SELECTOR, 'body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close')))
-        driver.find_element_by_css_selector(
-            'body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close').click()
+        time.sleep(0.3)
+        while True:
+            try:
+                driver.find_element_by_css_selector(
+                    'body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close').click()
+                break
+            except:
+                traceback.print_exc()
         driver.switch_to.window(driver.window_handles[0])
     # try:
     #     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,'body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close')))

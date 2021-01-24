@@ -102,7 +102,7 @@ class main_frame(QMainWindow, form_class):
         self.search_num.clear()
         self.max_search_num.setText('0')
 
-    def init_export_data(self):
+    def upload2naver(self):
         thread = threading.Thread(target=self.export_data)
         try:
             thread.start()
