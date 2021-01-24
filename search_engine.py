@@ -74,6 +74,8 @@ def crawl_a_item_nstore(url):
                 product.option_title_list.append((option_box[i]))
         if option_layer == -1:
             option_layer = len(option_box)
+        option_offset = len(driver.find_elements_by_css_selector('fieldset > div > div > input')) # 직접입력은 입력받지 않음
+        option_layer = option_layer - option_offset
         options = driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > a')
         options[0].click()
         driver.implicitly_wait(0.1)
