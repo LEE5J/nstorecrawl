@@ -186,12 +186,16 @@ class main_frame(QMainWindow, form_class):
         except:
             traceback.print_exc()
         try:
-            df.to_excel(f"{prefix}.xlsx", encoding='utf8', index=False)
+            df.to_excel(f"{prefix}.xls", encoding='cp949', index=False)
         except:
             traceback.print_exc()
         if len(self.jpg_pathes) != 0:
             self.upload_btn.setEnabled(True)
         os.chdir('..')
+        try:
+            QMessageBox.about(self, "완료", "내보내기 완료")
+        except:
+            traceback.print_exc()
         return prefix
 
     def delete_item(self):

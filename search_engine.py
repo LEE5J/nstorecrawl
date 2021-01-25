@@ -161,6 +161,8 @@ def crawl_a_item_nstore(url):
     driver.find_element_by_css_selector('body').send_keys(Keys.END)
     while maxtime > time.time():
         detail_list = driver.find_elements_by_css_selector('div.se-main-container > div')
+        detail_list += driver.find_elements_by_css_selector('div.se_component_wrap > div')
+        product.detail_html = "<center>"
         if len(detail_list) != 0:
             for detail_box in detail_list:
                 if 32000 < len(product.detail_html):
@@ -183,7 +185,7 @@ def crawl_a_item_nstore(url):
                         link = content.find_element_by_tag_name('a').get_attribute('href')
                         img_link = content.find_element_by_tag_name('img').get_attribute('data-src')
                         text = content.text.split('\n')
-                        product.detail_html += f"<a href=\"{link}\"><img src=\"{img_link}\"><strong>{text[0]}</strong><strong> 가격 : </strong><strong>{text[5]}</strong></a>"
+                        product.detail_html += f"<span href=\"{link}\"><img src=\"{img_link}\"><strong>{text[0]} 가격 : {text[5]}</strong></span>"
                         continue
                 except selenium.common.exceptions.NoSuchElementException:
                     None
@@ -195,12 +197,14 @@ def crawl_a_item_nstore(url):
                     if content != None:
                         word_list = content.text.split('\n')
                         for word in word_list:
-                            product.detail_html += f"<p><center><span style=\" font-size:2em;color:#000000;\">{word}</span></center></p>"
+                            product.detail_html += f"<p style=\" font-size:2em;color:#000000;\">{word}</p>"
                 except selenium.common.exceptions.NoSuchElementException:
                     None
                 except:
                     traceback.print_exc()
+    product.detail_html += "</center>"
     if 32766 < len(product.detail_html):
+        print("html 잘린부분있음")
         product.detail_html = product.detail_html[0:32765]
     if maxtime < time.time():
         print("타임오버")
