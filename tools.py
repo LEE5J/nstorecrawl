@@ -3,7 +3,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import urllib.request
 import pandas as pd
-from urllib.parase import quote
+from urllib.parse import quote
 
 def resource_path(relative_path):
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
@@ -577,7 +577,9 @@ def make_logger(name=None):
 
     return logger
 
-
+def converturl(url):
+    temp_url = url.replace('https://','').replace('http://','')
+    return "https://" + quote(temp_url)
 
 def search_category(search_word):
     result = str()
@@ -812,8 +814,7 @@ def convert_to_frame(product, prefix, jpg_pathes):
         line.append("")  # 추가 이미지 파일명
     os.makedirs(f"{path}/detail")
     for i in range(len(product.detail_img_src)):
-        print(product.detail_img_src[i])
-        urllib.request.urlretrieve(product.detail_img_src[i], f"{path}/detail/{prefix}_detailimg{i}")
+        urllib.request.urlretrieve(converturl(product.detail_img_src[i]), f"{path}/detail/{prefix}_detailimg{i}.jpg")
     line.append(product.detail_html)  # 상품 상세정보
     line.append("")  # 판매자 상품코드
     line.append("")  # 판매자 바코드

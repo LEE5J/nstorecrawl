@@ -13,6 +13,7 @@ from tools import *
 from search_engine import *
 import threading
 import webbrowser
+from urllib.parse import quote
 
 form_class = uic.loadUiType(resource_path("nstore.ui"))[0]
 sys.setrecursionlimit(5000)
