@@ -265,7 +265,12 @@ def upload_items(driver, excel_path):
         driver.switch_to.window(driver.window_handles[-1])
         # full_img_path_str += f"{resource_path(jpg_pathes[i])}"
         time.sleep(0.3)
-        driver.find_element_by_css_selector('body > div > input').send_keys(os.path.abspath(jpg_pathes[i]))
+        try:
+            driver.find_element_by_css_selector('body > div > input').send_keys(os.path.abspath(jpg_pathes[i]))
+        except:
+            time.sleep(0.5)
+            driver.switch_to.window(driver.window_handles[-1])
+            driver.find_element_by_css_selector('body > div > input').send_keys(os.path.abspath(jpg_pathes[i]))
         print(os.path.abspath(jpg_pathes[i]))
         WebDriverWait(driver, 10).until(EC.presence_of_element_located(
             (By.CSS_SELECTOR, 'body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close')))
