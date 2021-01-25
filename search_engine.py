@@ -234,7 +234,10 @@ def crawl_a_item_nstore(url):
     return product
 
 
-def upload_items(driver, excel_path):
+def upload_items(driver, excel_path, jpg_pathes):
+    if len(jpg_pathes) == 0:
+        print("내보내기를 먼저할 것")
+        return -1
     try:
         WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > button.btn.btn-default')))
         driver.find_element_by_css_selector('body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > button.btn.btn-default').click()
@@ -258,19 +261,23 @@ def upload_items(driver, excel_path):
     # 이미지 입력 시작
     # full_img_path_str = str()
     for i in range(len(jpg_pathes)):
-        driver.find_element_by_css_selector(
-            '#seller-content > ui-view > div > div.panel.panel-seller > div > div:nth-child(1) > div.seller-btn-right > div > button:nth-child(3)').click()
+        try:
+            driver.find_element_by_css_selector(
+                '#seller-content > ui-view > div > div.panel.panel-seller > div > div:nth-child(1) > div.seller-btn-right > div > button:nth-child(3)').click()
+        except:
+            traceback.print_exc()
         while len(driver.window_handles) != 2:
             print("창이 뜰때까지 대기중")
         driver.switch_to.window(driver.window_handles[-1])
         # full_img_path_str += f"{resource_path(jpg_pathes[i])}"
         time.sleep(0.3)
         try:
-            driver.find_element_by_css_selector('body > div > input').send_keys(os.path.abspath(jpg_pathes[i]))
+            driver.find_element_by_css_selector('body > div > input').send_keys(jpg_pathes[i])
         except:
+            traceback.print_exc()
             time.sleep(0.5)
             driver.switch_to.window(driver.window_handles[-1])
-            driver.find_element_by_css_selector('body > div > input').send_keys(os.path.abspath(jpg_pathes[i]))
+            driver.find_element_by_css_selector('body > div > input').send_keys(jpg_pathes[i])
         print(os.path.abspath(jpg_pathes[i]))
         WebDriverWait(driver, 10).until(EC.presence_of_element_located(
             (By.CSS_SELECTOR, 'body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close')))
@@ -283,13 +290,6 @@ def upload_items(driver, excel_path):
             except:
                 traceback.print_exc()
         driver.switch_to.window(driver.window_handles[0])
-    # try:
-    #     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,'body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close')))
-    # except:
-    #     traceback.print_exc()
-    # # 닫기
-    # driver.find_element_by_css_selector('body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close').click()
-    # driver.switch_to.window(driver.window_handles[0])
     driver.find_element_by_css_selector('#seller-content > ui-view > div > div:nth-child(2) > form > input[type=file]:nth-child(1)').send_keys(os.path.abspath(excel_path))
 
 # def crawl_itemlist_nstore(url):

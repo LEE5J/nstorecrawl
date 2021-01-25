@@ -245,7 +245,7 @@
      </font>
     </property>
     <property name="text">
-     <string>네이버등록</string>
+     <string>저장하기</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
@@ -600,6 +600,30 @@
      <string>카테고리 검색</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="upload_btn">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>790</x>
+      <y>0</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>등록하기</string>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -607,7 +631,7 @@
      <x>0</x>
      <y>0</y>
      <width>1600</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

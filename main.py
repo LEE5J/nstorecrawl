@@ -45,6 +45,7 @@ class main_frame(QMainWindow, form_class):
         self.search_num.textChanged.connect(self.numberfiltering)
         self.export_data_btn.pressed.connect(self.export_data)
         self.search_category_btn.pressed.connect(self.search_category)
+        self.upload_btn.pressed.connect(self.upload2naver)
         # self.resizeCompleted.connect(self.resize_qtable)
 
 
@@ -62,6 +63,7 @@ class main_frame(QMainWindow, form_class):
             box.exec_()
         except:
             traceback.print_exc()
+
     def numberfiltering(self):
         try:
             if self.search_num.text() == "":
@@ -103,69 +105,11 @@ class main_frame(QMainWindow, form_class):
         self.max_search_num.setText('0')
 
     def upload2naver(self):
-        thread = threading.Thread(target=self.export_data)
-        try:
-            thread.start()
-        except:
-            traceback.print_exc()
 
-    def export_data(self):
-        if self.id == None:
-            self.id, flag = QInputDialog.getText(self, 'ID', None)
-            self.pw, flag = QInputDialog.getText(self, 'PW', None)
-            box = QMessageBox()
-            box.setIcon(QMessageBox.Question)
-            box.setWindowTitle('아이디 유형')
-            box.setText('스토어 팜 아이디 유형을 선택해주세요')
-            box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            buttonY = box.button(QMessageBox.Yes)
-            buttonY.setText('판매자 아이디')
-            buttonN = box.button(QMessageBox.No)
-            buttonN.setText('네이버 아이디')
-            box.exec_()
-            if box.clickedButton() == buttonY:
-                self.is_sellerid = True
-            elif box.clickedButton() == buttonN:
-                self.is_sellerid = False
-
-            # if QMessageBox.Yes == QMessageBox.question(self, "", "판매자용 아이디 일경우 yes 네이버 아이디는 no를 눌러주세요",
-            #                                        QMessageBox. | QMessageBox.No, QMessageBox.No):
-            #     self.is_sellerid = True
-            # else:
-            #     self.is_sellerid = False
-        prefix = self.id + time.strftime('%y%m%d%H%M%S', time.localtime(time.time()))
-        os.makedirs(f'./{prefix}')
-        os.chdir(f'./{prefix}')
-        product_header = ['상품상태',	'카테고리ID',	'상품명','판매가','재고수량','A/S 안내내용','A/S 전화번호','대표 이미지 파일명','추가 이미지 파일명',
-                          '상품 상세정보','판매자 상품코드','판매자 바코드','제조사','브랜드','제조일자','유효일자','부가세','미성년자 구매',
-                          '구매평 노출여부','원산지 코드','수입사','복수원산지 여부','원산지 직접입력',	'배송방법','배송비 유형','기본배송비',
-                          '배송비 결제방식','조건부무료-상품판매가합계','수량별부과-수량','반품배송비',	'교환배송비','지역별 차등배송비 정보','별도설치비',
-                          '판매자 특이사항','즉시할인 값','즉시할인 단위','복수구매할인 조건 값','복수구매할인 조건 단위','복수구매할인 값','복수구매할인 단위',
-                          '상품구매시 포인트 지급 값','상품구매시 포인트 지급 단위',	'텍스트리뷰 작성시 지급 포인트',	'포토/동영상 리뷰 작성시 지급 포인트',
-                          '한달사용\n텍스트리뷰 작성시 지급 포인트','한달사용\n포토/동영상리뷰 작성시 지급 포인트','톡톡친구/스토어찜고객\n리뷰 작성시 지급 포인트',
-                          '무이자 할부 개월','사은품','옵션형태',	'옵션명','옵션값','옵션가',	'옵션 재고수량','추가상품명','추가상품값',
-                          '추가상품가','추가상품 재고수량','상품정보제공고시 품명','상품정보제공고시 모델명',	'상품정보제공고시 인증허가사항',
-                          '상품정보제공고시 제조자','스토어찜회원 전용여부','문화비 소득공제',	'ISBN',	'독립출판']
-        data = []
-        for product in self.product_list:
-            try:
-                data.append(convert_to_frame(product, f"{prefix}{len(data)}"))
-                print(data[-1])
-            except:
-                traceback.print_exc()
         try:
-            df = pd.DataFrame(data,  index=None, columns=product_header)
-        except:
-            traceback.print_exc()
-        try:
-            # df.to_excel(f"{prefix}.xls", encoding='cp949', index=False)
-            df.to_excel(f"{prefix}.xls", index=False)
-        except:
-            traceback.print_exc()
-        try:
-            driver = webdriver.Chrome("../chromedriver.exe")
-        except:
             driver = webdriver.Chrome("chromedriver.exe")
+        except:
+            driver = webdriver.Chrome("../chromedriver.exe")
             traceback.print_exc()
         driver.get('https://sell.smartstore.naver.com/#/login')
         if self.is_sellerid :
@@ -194,9 +138,60 @@ class main_frame(QMainWindow, form_class):
             if driver.current_url == 'https://sell.smartstore.naver.com/#/home/dashboard':
                 break
         print("로그인 완료 등록 시작")
-        upload_items(driver, f"{prefix}.xls")
-        # QMessageBox.information(self, "", "내보내기 완료")
-        os.chdir(f'..')
+        upload_items(driver, f"{self.prefix}/{self.prefix}.xls", self.jpg_pathes)
+
+    def export_data(self):
+        if self.id == None:
+            self.id, flag = QInputDialog.getText(self, 'ID', None)
+            self.pw, flag = QInputDialog.getText(self, 'PW', None)
+            box = QMessageBox()
+            box.setIcon(QMessageBox.Question)
+            box.setWindowTitle('아이디 유형')
+            box.setText('스토어 팜 아이디 유형을 선택해주세요')
+            box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            buttonY = box.button(QMessageBox.Yes)
+            buttonY.setText('판매자 아이디')
+            buttonN = box.button(QMessageBox.No)
+            buttonN.setText('네이버 아이디')
+            box.exec_()
+            if box.clickedButton() == buttonY:
+                self.is_sellerid = True
+            elif box.clickedButton() == buttonN:
+                self.is_sellerid = False
+        prefix = self.id + time.strftime('%y%m%d%H%M%S', time.localtime(time.time()))
+        self.prefix = prefix
+        os.makedirs(f'./{prefix}')
+        os.chdir(f'./{prefix}')
+        product_header = ['상품상태', '카테고리ID', '상품명', '판매가', '재고수량', 'A/S 안내내용', 'A/S 전화번호', '대표 이미지 파일명', '추가 이미지 파일명',
+                          '상품 상세정보', '판매자 상품코드', '판매자 바코드', '제조사', '브랜드', '제조일자', '유효일자', '부가세', '미성년자 구매',
+                          '구매평 노출여부', '원산지 코드', '수입사', '복수원산지 여부', '원산지 직접입력', '배송방법', '배송비 유형', '기본배송비',
+                          '배송비 결제방식', '조건부무료-상품판매가합계', '수량별부과-수량', '반품배송비', '교환배송비', '지역별 차등배송비 정보', '별도설치비',
+                          '판매자 특이사항', '즉시할인 값', '즉시할인 단위', '복수구매할인 조건 값', '복수구매할인 조건 단위', '복수구매할인 값', '복수구매할인 단위',
+                          '상품구매시 포인트 지급 값', '상품구매시 포인트 지급 단위', '텍스트리뷰 작성시 지급 포인트', '포토/동영상 리뷰 작성시 지급 포인트',
+                          '한달사용\n텍스트리뷰 작성시 지급 포인트', '한달사용\n포토/동영상리뷰 작성시 지급 포인트', '톡톡친구/스토어찜고객\n리뷰 작성시 지급 포인트',
+                          '무이자 할부 개월', '사은품', '옵션형태', '옵션명', '옵션값', '옵션가', '옵션 재고수량', '추가상품명', '추가상품값',
+                          '추가상품가', '추가상품 재고수량', '상품정보제공고시 품명', '상품정보제공고시 모델명', '상품정보제공고시 인증허가사항',
+                          '상품정보제공고시 제조자', '스토어찜회원 전용여부', '문화비 소득공제', 'ISBN', '독립출판']
+        data = []
+        self.jpg_pathes = []
+        for i, product in enumerate(self.product_list):
+            try:
+                data.append(convert_to_frame(product, f"{prefix}{i}", self.jpg_pathes))
+                print(data[-1])
+            except:
+                traceback.print_exc()
+        try:
+            df = pd.DataFrame(data, index=None, columns=product_header)
+        except:
+            traceback.print_exc()
+        try:
+            df.to_excel(f"{prefix}.xls", index=False)
+        except:
+            traceback.print_exc()
+        if len(self.jpg_pathes) != 0:
+            self.upload_btn.setEnabled(True)
+        os.chdir('..')
+        return prefix
 
     def delete_item(self):
         temp_product_list = []

@@ -599,6 +599,7 @@ def return_int(text):
 
 
 def get_nameNprice(text):
+    text = text.replace('(품절)','').replace('품절','')
     if ' (+' in text:
         try:
             price = return_int(text.split(' (+')[-1])
@@ -775,7 +776,8 @@ def get_terminfo(text):
     return return_fee
 
 
-def convert_to_frame(product, prefix):
+
+def convert_to_frame(product, prefix, jpg_pathes):
     path = f'./{product.product_name}'
     os.makedirs(path)
     line = []
@@ -786,10 +788,10 @@ def convert_to_frame(product, prefix):
     line.append(999)  # 재고수량
     line.append(product.as_info)  # A/S 안내내용
     line.append(product.as_call_number)  # A/S 전화번호
-    main_img_path = f"{path}/{prefix}_mainimg.jpg"
+    main_img_path = f"./{path}/{prefix}_mainimg.jpg"
     main_img_name = f"{prefix}_mainimg.jpg"
     urllib.request.urlretrieve(product.main_img_src, main_img_path)
-    jpg_pathes.append(main_img_path)
+    jpg_pathes.append(os.path.abspath(main_img_path))
     line.append(main_img_name)  # 대표 이미지 파일명
     if len(product.sub_img_src) != 0:
         text = str()
@@ -800,7 +802,7 @@ def convert_to_frame(product, prefix):
             sub_img_path = f"{path}/{prefix}_sub_img{i}.jpg"
             sub_img_name = f"{prefix}_sub_img{i}.jpg"
             urllib.request.urlretrieve(url, sub_img_path)
-            jpg_pathes.append(sub_img_path)
+            jpg_pathes.append(os.path.abspath(sub_img_path))
             if i == 0:
                 text += sub_img_name
             else:
