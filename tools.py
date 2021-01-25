@@ -3,7 +3,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import urllib.request
 import pandas as pd
-
+from urllib.parase import quote
 
 def resource_path(relative_path):
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
@@ -776,7 +776,6 @@ def get_terminfo(text):
     return return_fee
 
 
-
 def convert_to_frame(product, prefix, jpg_pathes):
     path = f'./{product.product_name}'
     os.makedirs(path)
@@ -795,11 +794,12 @@ def convert_to_frame(product, prefix, jpg_pathes):
     line.append(main_img_name)  # 대표 이미지 파일명
     if len(product.sub_img_src) != 0:
         text = str()
+        os.makedirs(f"{path}/sub")
         if len(product.sub_img_src) > 9:
             product.sub_img_src = product.sub_img_src[0:8]
         for i in range(len(product.sub_img_src)):
             url = product.sub_img_src[i].split("?")[0]
-            sub_img_path = f"{path}/{prefix}_sub_img{i}.jpg"
+            sub_img_path = f"{path}/sub/{prefix}_sub_img{i}.jpg"
             sub_img_name = f"{prefix}_sub_img{i}.jpg"
             urllib.request.urlretrieve(url, sub_img_path)
             jpg_pathes.append(os.path.abspath(sub_img_path))
@@ -810,6 +810,10 @@ def convert_to_frame(product, prefix, jpg_pathes):
         line.append(text)
     else:
         line.append("")  # 추가 이미지 파일명
+    os.makedirs(f"{path}/detail")
+    for i in range(len(product.detail_img_src)):
+        print(product.detail_img_src[i])
+        urllib.request.urlretrieve(product.detail_img_src[i], f"{path}/detail/{prefix}_detailimg{i}")
     line.append(product.detail_html)  # 상품 상세정보
     line.append("")  # 판매자 상품코드
     line.append("")  # 판매자 바코드
@@ -979,3 +983,4 @@ class Product:
         self.certifiedinfo = ""
         self.option_title_list = []
         self.option_offset = 0
+        self.detail_img_src= []

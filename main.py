@@ -185,7 +185,7 @@ class main_frame(QMainWindow, form_class):
         except:
             traceback.print_exc()
         try:
-            df.to_excel(f"{prefix}.xls", index=False)
+            df.to_excel(f"{prefix}.xlsx", encoding='utf8', index=False)
         except:
             traceback.print_exc()
         if len(self.jpg_pathes) != 0:

@@ -19,7 +19,7 @@ def crawl_a_item_nstore(url):
         driver = webdriver.Chrome("../chromedriver.exe", options=options)
     driver.get(url)
     driver.find_element_by_css_selector('body').send_keys(Keys.END)
-    if time.time() > 1611671913:
+    if time.time() > 1612671913:
         exit()
     product.url = url
     # 품절 여부 확인
@@ -169,6 +169,7 @@ def crawl_a_item_nstore(url):
                     content = detail_box.find_element_by_css_selector('a > img')
                     print("일반 이미지")
                     if content != None:
+                        product.detail_img_src.append(content.get_attribute('data-src'))
                         product.detail_html += f"<img src=\"{content.get_attribute('data-src')}\">"
                         continue
                 except selenium.common.exceptions.NoSuchElementException:
