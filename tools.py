@@ -814,7 +814,10 @@ def convert_to_frame(product, prefix, jpg_pathes):
         line.append("")  # 추가 이미지 파일명
     os.makedirs(f"{path}/detail")
     for i in range(len(product.detail_img_src)):
-        urllib.request.urlretrieve(converturl(product.detail_img_src[i]), f"{path}/detail/{prefix}_detailimg{i}.jpg")
+        try:
+            urllib.request.urlretrieve(converturl(product.detail_img_src[i]), f"{path}/detail/{prefix}_detailimg{i}.jpg")
+        except:
+            print("수집 불가" + converturl(product.detail_img_src[i]))
     line.append(product.detail_html)  # 상품 상세정보
     line.append("")  # 판매자 상품코드
     line.append("")  # 판매자 바코드
