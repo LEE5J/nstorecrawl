@@ -14,7 +14,7 @@ from search_engine import *
 import threading
 import webbrowser
 from urllib.parse import quote
-
+from selenium import webdriver
 form_class = uic.loadUiType(resource_path("nstore.ui"))[0]
 sys.setrecursionlimit(5000)
 
@@ -30,9 +30,15 @@ class main_frame(QMainWindow, form_class):
         self.product_list = []
         self.errorurl_list = []  # 크롤링 실패한 것들을 모아놓는 곳
         self.current_row = 0
-        self.username = "username"
         self.show()
         self.id = None
+        try:
+            driver = webdriver.Chrome('chromedriver.exe')
+            driver.quit()
+        except selenium.common.exceptions.WebDriverException:
+            QMessageBox.about(self, "완료", "내보내기 완료")
+        except:
+            traceback.print_exc()
 
 
     def init_event(self):

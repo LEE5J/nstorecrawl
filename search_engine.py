@@ -5,6 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from tools import *
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QThread, pyqtSignal
 
 def crawl_a_item_nstore(url):
@@ -14,7 +15,7 @@ def crawl_a_item_nstore(url):
     options.add_argument('--windows-size=1600,900')
     options.add_argument('--disable-gpu')
     try:
-        driver = webdriver.Chrome("chromedriver.exe",options=options)
+        driver = webdriver.Chrome("chromedriver.exe", options=options)
     except:
         driver = webdriver.Chrome("../chromedriver.exe", options=options)
     driver.get(url)
