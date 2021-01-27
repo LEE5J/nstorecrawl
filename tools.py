@@ -14,6 +14,7 @@ data = {'국산': '00',
         '원양산': '01',
         '수입산': '02',
         '상세설명에 표시': '03',
+        '상세설명에표시': '03',
         '직접입력': '04',
         '원산지 표기 의무대상 아님': '05',
         '강원도': '0001',
@@ -714,6 +715,7 @@ def get_origin_id(origin):
             return data[text]
         except:
             print(f"{text}해당 원산지가 없음")
+    return data['직접입력']
 
 
 def get_categoryid_byname(title):
@@ -834,7 +836,10 @@ def convert_to_frame(product, prefix, jpg_pathes):
             product.importer = "수입사"
     line.append(product.importer)  # 수입사
     line.append("N")  # 복수 원산지 여부
-    line.append("")  # 원산지 직접입력
+    if product.origin_id == '04':
+        line.append(product.origin)
+    else:
+        line.append("")  # 원산지 직접입력
     line.append("택배‚ 소포‚ 등기")  # 배송방법
     if product.delivery_fee == 0:
         line.append("무료")

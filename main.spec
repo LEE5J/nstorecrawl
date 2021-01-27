@@ -26,11 +26,11 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='ver0_9_7',
+          name='ver0_9_8',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False)
+          console=True)

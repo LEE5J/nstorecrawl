@@ -12,7 +12,7 @@ def crawl_a_item_nstore(url):
     product = Product()
     options = webdriver.ChromeOptions()
     # options.add_argument('--headless')
-    options.add_argument('--windows-size=1600,900')
+    options.add_argument('--windows-size=900,900')
     options.add_argument('--disable-gpu')
     try:
         driver = webdriver.Chrome("chromedriver.exe", options=options)
@@ -43,7 +43,7 @@ def crawl_a_item_nstore(url):
     main_img = driver.find_element_by_css_selector('#content > div > div > div > div > div > img')
     product.main_img_src = main_img.get_attribute('src')
     print(product.main_img_src)
-    product.product_name = driver.find_element_by_css_selector('#content > div > div > div > fieldset > div > h3').text
+    product.product_name = driver.find_element_by_css_selector('#content > div > div > div > fieldset > div > h3').text.replace('/', '')
     category_link = driver.find_elements_by_css_selector('#content > div > div > div > div > ul > li > a')[-1].get_attribute('href')
     if len(category_link.split('/category/')) == 1:
         try:

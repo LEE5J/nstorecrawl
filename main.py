@@ -33,7 +33,9 @@ class main_frame(QMainWindow, form_class):
         self.show()
         self.id = None
         try:
-            driver = webdriver.Chrome('chromedriver.exe')
+            options = webdriver.ChromeOptions()
+            options.add_argument('--headless')
+            driver = webdriver.Chrome('chromedriver.exe', chrome_options=options)
             driver.quit()
         except selenium.common.exceptions.WebDriverException:
             QMessageBox.about(self, "완료", "내보내기 완료")
@@ -54,6 +56,9 @@ class main_frame(QMainWindow, form_class):
         self.search_category_btn.pressed.connect(self.search_category)
         self.upload_btn.pressed.connect(self.upload2naver)
         # self.resizeCompleted.connect(self.resize_qtable)
+
+    def closeEvent(self, event):
+        self.deleteLater()
 
 
     # def resize_qtable(self):
