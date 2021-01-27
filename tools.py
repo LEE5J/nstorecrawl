@@ -831,7 +831,7 @@ def convert_to_frame(product, prefix, jpg_pathes):
     line.append("Y")  # 미성년자구매
     line.append("Y")  # 구매평 노출 여부
     line.append(str(product.origin_id))  # 원산지 코드
-    if product.origin_id == "02":
+    if "02" in product.origin_id:
         if product.importer == "":
             product.importer = "수입사"
     line.append(product.importer)  # 수입사

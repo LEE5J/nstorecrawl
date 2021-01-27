@@ -222,8 +222,10 @@ def crawl_a_item_nstore(url):
     product.origin = product.origin
     product.origin_id = get_origin_id(product.origin)
     try:
-        importer = product.origin.split('(')[1]
+        importer = product.origin.split('(')[-1]
         importer = importer.replace(')', '')
+        if importer[0] == '주':
+            importer = "(주)" + importer[1:]
         product.importer = importer
     except:
         print("수입사 존재하지않음")
