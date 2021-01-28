@@ -35,7 +35,7 @@ class main_frame(QMainWindow, form_class):
         try:
             options = webdriver.ChromeOptions()
             options.add_argument('--headless')
-            driver = webdriver.Chrome('chromedriver.exe', chrome_options=options)
+            driver = webdriver.Chrome('chromedriver.exe', options=options)
             driver.quit()
         except selenium.common.exceptions.WebDriverException:
             QMessageBox.about(self, "완료", "내보내기 완료")

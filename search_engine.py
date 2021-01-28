@@ -12,14 +12,14 @@ from PyQt5.QtCore import QThread, pyqtSignal
 
 def crawl_a_item_nstore(url):
     product = Product()
-    options = webdriver.ChromeOptions()
+    # options = webdriver.ChromeOptions()
     # options.add_argument('--headless')
     # options.add_argument('--windows-size=900,900')
     # options.add_argument('--disable-gpu')
     try:
-        driver = webdriver.Chrome("chromedriver.exe", options=options)
+        driver = webdriver.Chrome("chromedriver.exe")
     except:
-        driver = webdriver.Chrome("../chromedriver.exe", options=options)
+        driver = webdriver.Chrome("../chromedriver.exe")
     driver.get(url)
     driver.find_element_by_css_selector('body').send_keys(Keys.END)
     if time.time() > 1612671913:  # exe파일 유출시 대비
