@@ -1,4 +1,6 @@
 import sys, traceback, selenium, time, requests
+
+from requests import options
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -12,15 +14,15 @@ def crawl_a_item_nstore(url):
     product = Product()
     options = webdriver.ChromeOptions()
     # options.add_argument('--headless')
-    options.add_argument('--windows-size=900,900')
-    options.add_argument('--disable-gpu')
+    # options.add_argument('--windows-size=900,900')
+    # options.add_argument('--disable-gpu')
     try:
         driver = webdriver.Chrome("chromedriver.exe", options=options)
     except:
         driver = webdriver.Chrome("../chromedriver.exe", options=options)
     driver.get(url)
     driver.find_element_by_css_selector('body').send_keys(Keys.END)
-    if time.time() > 1612671913:
+    if time.time() > 1612671913:  # exe파일 유출시 대비
         exit()
     product.url = url
     # 품절 여부 확인
@@ -78,6 +80,7 @@ def crawl_a_item_nstore(url):
         option_offset = len(driver.find_elements_by_css_selector('fieldset > div > div > input')) # 직접입력은 입력받지 않음
         product.option_offset = option_offset  # 입력형은 제외하고 반영하며 이는 오프셋으로 조정함
         option_layer = option_layer - option_offset
+        driver.find_element_by_css_selector('body').send_keys(Keys.HOME)
         options = driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > a')
         options[0].click()
         driver.implicitly_wait(0.1)

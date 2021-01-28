@@ -82,7 +82,7 @@ class main_frame(QMainWindow, form_class):
                 return 0
             if len(self.item_link_list) < int(self.search_num.text()):
                 self.search_num.setText(str(len(self.item_link_list)))
-            self.expect_time.setText(f'{int(int(self.search_num.text()) / 4 )}분{int(int(self.search_num.text())%4)*15}초')
+            self.expect_time.setText(f'{int(int(self.search_num.text()) / 4 )}분{int(int(self.search_num.text())%4)*32}초')
         except:
             self.search_num.clear()
 
@@ -188,7 +188,7 @@ class main_frame(QMainWindow, form_class):
         self.jpg_pathes = []
         for i, product in enumerate(self.product_list):
             try:
-                data.append(convert_to_frame(product, f"{prefix}{i}", self.jpg_pathes))
+                data.append(convert_to_frame(product, f"{prefix}{i}", i, self.jpg_pathes))
                 print(data[-1])
             except:
                 traceback.print_exc()
@@ -307,7 +307,7 @@ class main_frame(QMainWindow, form_class):
         self.item_link_list = item_link_list
         self.max_search_num.setText(str(len(item_link_list)))
         self.search_num.setText(str(len(item_link_list)))
-        self.expect_time.setText(f'{int(len(item_link_list) / 4 )}분{int(len(item_link_list)%4)*15}초')
+        self.expect_time.setText(f'{int(len(item_link_list)*32 / 60 )}분{int(len(item_link_list)%4)*32}초')
         minute = int(int(time.time() - start_time) / 60)
         sec = int(time.time() - start_time) % 60
         self.running_time.setText(f'{minute}분{sec}초')
@@ -424,10 +424,12 @@ class main_frame(QMainWindow, form_class):
 
 
 
-
+def except_hook(cls, exception, traceback):
+    sys.__excepthook__(cls, exception, traceback)
 
 
 if __name__ == '__main__':
+    sys.excepthook = except_hook
     try:
         # log.debug('debug')
     # log.info('info')

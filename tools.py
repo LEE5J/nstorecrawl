@@ -780,8 +780,8 @@ def get_terminfo(text):
     return return_fee
 
 
-def convert_to_frame(product, prefix, jpg_pathes):
-    path = f'./{product.product_name}'
+def convert_to_frame(product, prefix, index,jpg_pathes):
+    path = f'./{index}_{product.product_name}'
     os.makedirs(path)
     line = []
     line.append(product.product_status)  # 상품상태
@@ -823,7 +823,7 @@ def convert_to_frame(product, prefix, jpg_pathes):
     line.append(product.detail_html)  # 상품 상세정보
     line.append("")  # 판매자 상품코드
     line.append("")  # 판매자 바코드
-    line.append("")  # 제조사
+    line.append("본사협력업체")  # 제조사
     line.append("")  # 브랜드
     line.append("")  # 제조일자
     line.append("")  # 유효일자
@@ -833,8 +833,9 @@ def convert_to_frame(product, prefix, jpg_pathes):
     line.append(str(product.origin_id))  # 원산지 코드
     if "02" in product.origin_id:
         if product.importer == "":
-            product.importer = "수입사"
-    line.append(product.importer)  # 수입사
+            product.importer = "본사협력업체"
+    # line.append(product.importer)  # 수입사
+    line.append("본사협력업체")
     line.append("N")  # 복수 원산지 여부
     if product.origin_id == '04':
         line.append(product.origin)
@@ -948,8 +949,9 @@ def convert_to_frame(product, prefix, jpg_pathes):
             product.model_name = product.model_name[0:49]
     except:
         None
-    line.append(product.model_name)  # 상품정보제공고시모델명
-    line.append("")  # 상품정보제공고시 인증허가사항
+    # line.append(product.model_name)  # 상품정보제공고시모델명
+    line.append("")
+    line.append("KC 안전관리대상 아님")  # 상품정보제공고시 인증허가사항
     line.append("")  # 상품정보제공고시 제조자
     line.append("N")  # 스토어찜회원 전용여부
     line.append("")  # 문화비 소득공제
