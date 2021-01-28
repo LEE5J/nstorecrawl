@@ -65,7 +65,7 @@ class main_frame(QMainWindow, form_class):
         # self.data_table = QTableWidget()
         # self.data_table.resize(Qsize(self.get))
     def search_category(self):
-        search_word, flag = QInputDialog.getText(self,"카테고리 검색", "검색어 입력")
+        search_word, flag = QInputDialog.getText(self, "카테고리 검색", "검색어 입력")
         try:
             box = QMessageBox()
             box.setIcon(QMessageBox.Information)
@@ -82,7 +82,7 @@ class main_frame(QMainWindow, form_class):
                 return 0
             if len(self.item_link_list) < int(self.search_num.text()):
                 self.search_num.setText(str(len(self.item_link_list)))
-            self.expect_time.setText(f'{int(int(self.search_num.text()) / 4 )}분{int(int(self.search_num.text())%4)*32}초')
+            self.expect_time.setText(f'{int(int(self.search_num.text())*36 / 60 )}분{int(self.search_num.text())*36 % 60}초')
         except:
             self.search_num.clear()
 
@@ -105,6 +105,7 @@ class main_frame(QMainWindow, form_class):
             self.repaint()
             self.set_item(url)
             self.progressBar.repaint()
+        self.progressBar.setValue(100)
         self.progressBar.setValue(100)
         self.url_LE.clear()
         self.retry_errorurl()

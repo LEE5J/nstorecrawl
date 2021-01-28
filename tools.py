@@ -541,7 +541,7 @@ data = {'국산': '00',
         '하이티': '0205040'}
 category_data = pd.read_csv(resource_path('category_data.csv'), encoding='cp949')
 # category_data.iloc[0]['data']
-
+replacement_id = None  # 카테고리 id 가 없을때
 
 header = ['상품번호', '상품상태', '제조사', '브랜드', '모델명', '원산지', '이벤트', '제조일자']
 category_header = ['가구/인테리어', '도서', '식품', '디지털/가전', '생활/건강', '스포츠/레저', '화장품/미용', '출산/육아', '여가/생활편의', '패션잡화', '패션의류']
@@ -719,6 +719,7 @@ def get_origin_id(origin):
 
 
 def get_categoryid_byname(title):
+    global replacement_id
     req = requests.get(f'https://search.shopping.naver.com/search/all?query={title}')
     html = BeautifulSoup(req.text, "html.parser")
     category_link = html.select('div.basicList_depth__2QIie > a')
@@ -728,7 +729,14 @@ def get_categoryid_byname(title):
             print(category_link[i - 1]['href'])
             return int(category_link[i - 1]['href'].split('=')[-1])
     print("검색결과가 1개만 존재하는 케이스")
-    return int(category_link[i]['href'].split('=')[-1])
+    category_id = int(category_link[i]['href'].split('=')[-1])
+    if category_id is None:
+        category_id = replacement_id
+    if replacement_id is None:
+        replacement_id = category_id
+    if category_id is None:
+        category_id = '50000020'
+    return category_id
 
 
 def get_ascallnumNspecialnote(text):
@@ -790,7 +798,8 @@ def convert_to_frame(product, prefix, index,jpg_pathes):
     line.append(product.original_price)  # 판매가 = 할인전 가격
     line.append(999)  # 재고수량
     line.append(product.as_info)  # A/S 안내내용
-    line.append(product.as_call_number)  # A/S 전화번호
+    # line.append(product.as_call_number)  # A/S 전화번호
+    line.append("07011111111")
     main_img_path = f"./{path}/{prefix}_mainimg.jpg"
     main_img_name = f"{prefix}_mainimg.jpg"
     urllib.request.urlretrieve(product.main_img_src, main_img_path)
