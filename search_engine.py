@@ -82,7 +82,12 @@ def crawl_a_item_nstore(url):
         option_layer = option_layer - option_offset
         driver.find_element_by_css_selector('body').send_keys(Keys.HOME)
         options = driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > a')
-        options[0].click()
+        try:
+            options[0].click()
+        except:
+            print("옵션선택에서 에러 발생 대처 진행 1")
+            driver.find_element_by_css_selector('body').send_keys(Keys.PAGE_DOWN)
+            options[0].click()
         driver.implicitly_wait(0.1)
         firstoptions = driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > ul > li > a')
         while len(firstoptions) == 0:
