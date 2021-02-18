@@ -1,5 +1,4 @@
 import sys, traceback, selenium, time, requests
-
 from requests import options
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -9,21 +8,24 @@ from selenium.webdriver.support import expected_conditions as EC
 from tools import *
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5 import QtCore
+import selenium
+class ThreadClass(QtCore.QThread):
+    def __init__(self, parent = None):
+        super(ThreadClass,self).__init__(parent)
+    def run(self):
+        pass
+        
+
 
 def crawl_a_item_nstore(url):
     product = Product()
-    # options = webdriver.ChromeOptions()
-    # options.add_argument('--headless')
-    # options.add_argument('--windows-size=900,900')
-    # options.add_argument('--disable-gpu')
     try:
         driver = webdriver.Chrome("chromedriver.exe")
     except:
         driver = webdriver.Chrome("../chromedriver.exe")
     driver.get(url)
     driver.find_element_by_css_selector('body').send_keys(Keys.END)
-    if time.time() > 1612671913:  # exe파일 유출시 대비
-        exit()
     product.url = url
     # 품절 여부 확인
     try:
@@ -39,26 +41,14 @@ def crawl_a_item_nstore(url):
             else:
                 driver.quit()
                 return product
-    except:
-        None
+    except selenium.common.exceptions.NoSuchElementException:
+        pass
     driver.find_element_by_css_selector('body').send_keys(Keys.END)
     main_img = driver.find_element_by_css_selector('#content > div > div > div > div > div > img')
     product.main_img_src = main_img.get_attribute('src')
     print(product.main_img_src)
     product.product_name = driver.find_element_by_css_selector('#content > div > div > div > fieldset > div > h3').text.replace('/', '')
-    category_link = driver.find_elements_by_css_selector('#content > div > div > div > div > ul > li > a')[-1].get_attribute('href')
-    if len(category_link.split('/category/')) == 1:
-        try:
-            product.category_id = get_categoryid_byname(product.product_name)
-        except:
-            print("카테고리 id 얻는데 실패함" + product.product_name)
-    elif len(category_link.split('/category/')[1]) < 9: # 레퍼런스 카테고리를 사용함
-        product.category_id = category_link.split('/category/')[1]
-    else:  # 커스텀 카테고리를 사용함
-        try:
-            product.category_id = get_categoryid_byname(product.product_name)
-        except:
-            print("카테고리 id 얻는데 실패함" + product.product_name)
+    product.category_id = get_categoryid_byname(product.product_name)
     try:
         product.original_price = return_int(driver.find_elements_by_css_selector('fieldset > div._1ziwSSdAv8 > div > div > del > span')[1].text)
     except:  # 할인을 안하는 제품임
@@ -72,19 +62,19 @@ def crawl_a_item_nstore(url):
             if option_box[i] == '추가옵션 선택':
                 option_layer = i
                 if i == 0:
-                    raise selenium.common.exceptions.NoSuchElementException
+                    option_layer = 0
             else:
                 product.option_title_list.append((option_box[i]))
         if option_layer == -1:
             option_layer = len(option_box)
-        option_offset = len(driver.find_elements_by_css_selector('fieldset > div > div > input')) # 직접입력은 입력받지 않음
+        option_offset = len(driver.find_elements_by_css_selector('fieldset > div > div > input'))# 직접입력은 입력받지 않음
         product.option_offset = option_offset  # 입력형은 제외하고 반영하며 이는 오프셋으로 조정함
         option_layer = option_layer - option_offset
         driver.find_element_by_css_selector('body').send_keys(Keys.HOME)
         options = driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > a')
         try:
             options[0].click()
-        except:
+        except :
             print("옵션선택에서 에러 발생 대처 진행 1")
             driver.find_element_by_css_selector('body').send_keys(Keys.PAGE_DOWN)
             options[0].click()
@@ -111,7 +101,7 @@ def crawl_a_item_nstore(url):
                 secondoptions = driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > ul > li > a')
                 for j in range(len(secondoptions)):
                     option_name2, option_price = get_nameNprice(secondoptions[j].text)
-                    product.option_name_list.append(option_name1 + "|" +option_name2)
+                    product.option_name_list.append(option_name1 + "|" + option_name2)
                     product.option_price_list.append(option_price)
                 options[0].click()
         elif option_layer == 3:
@@ -141,6 +131,8 @@ def crawl_a_item_nstore(url):
         options[0].click()
     except selenium.common.exceptions.NoSuchElementException:
         option_layer = 0
+    except :
+        traceback.print_exc()
     product.option_layer = option_layer
     addopt_num = len(driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > a')) - option_layer
     if addopt_num != 0:
@@ -166,7 +158,7 @@ def crawl_a_item_nstore(url):
     for a_sub_img in sub_img:
         product.sub_img_src.append(a_sub_img.get_attribute('data-src'))
     exit_cnt = 0
-    maxtime = time.time() + 5
+    maxtime = time.time() + 20
     driver.find_element_by_css_selector('body').send_keys(Keys.END)
     while maxtime > time.time():
         detail_list = driver.find_elements_by_css_selector('div.se-main-container > div')
@@ -217,8 +209,6 @@ def crawl_a_item_nstore(url):
         product.detail_html = product.detail_html[0:32765]
     if maxtime < time.time():
         print("타임오버")
-    else:
-        print("디테일 수집완료")
     # 태그정보 수집 시작
     tags = driver.find_elements_by_css_selector('#INTRODUCE > div > div.jqaBjC05ww > ul > li > a')
     for tag in tags:
@@ -254,58 +244,53 @@ def upload_items(driver, excel_path, jpg_pathes):
     if len(jpg_pathes) == 0:
         print("내보내기를 먼저할 것")
         return -1
-    try:
-        WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > button.btn.btn-default')))
-        driver.find_element_by_css_selector('body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > button.btn.btn-default').click()
-    except:
-        traceback.print_exc()
-    print("고객 확인창 끄기")
-    try:
-        WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > div > button')))
-        driver.find_element_by_css_selector('body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > div > button').click()
-        WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div:nth-child(1) > div > div > div.modal-footer > div > span:nth-child(2) > button')))
-        driver.find_element_by_css_selector('body > div:nth-child(1) > div > div > div.modal-footer > div > span:nth-child(2) > button').click()
-    except:
-        traceback.print_exc()
-    print("as 전화 인증 끄기")
-    driver.implicitly_wait(0.5)
-    driver.find_element_by_css_selector('#seller-lnb > div > div:nth-child(1) > ul > li:nth-child(1) > a').click()
-    driver.implicitly_wait(0.5)
-    driver.find_element_by_css_selector('#seller-lnb > div > div:nth-child(1) > ul > li.active > ul > li:nth-child(3) > a').click()
-    print("일괄 등록 페이지로 이동")
-    WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#seller-content > ui-view > div > div.panel.panel-seller > div > div:nth-child(1) > div.seller-btn-right > div > button:nth-child(3)')))
+    driver.get('https://sell.smartstore.naver.com/#/products/bulkadd')
     # 이미지 입력 시작
-    # full_img_path_str = str()
+    img_path_box = []
+    img_path_a_try = str()
+    img_size = 0
     for i in range(len(jpg_pathes)):
-        try:
-            driver.find_element_by_css_selector(
-                '#seller-content > ui-view > div > div.panel.panel-seller > div > div:nth-child(1) > div.seller-btn-right > div > button:nth-child(3)').click()
-        except:
-            traceback.print_exc()
+        if i % 500 == 499 or img_size > 480000000:
+            img_path_box.append(img_path_a_try)
+            img_path_a_try = str()
+            img_size = 0
+        if i == len(jpg_pathes)-1:
+            img_path_a_try += jpg_pathes[i]
+        else:
+            img_path_a_try += jpg_pathes[i]+'\n'
+        img_size += os.path.getsize(jpg_pathes[i])
+    img_path_box.append(img_path_a_try)
+    for i in range(len(img_path_box)):
+        while True:
+            try:
+                driver.find_element_by_css_selector('#seller-content > ui-view > div > div.panel.panel-seller > div > div:nth-child(1) > div.seller-btn-right > div > button:nth-child(3)').click()
+                break
+            except:
+                pass
         while len(driver.window_handles) != 2:
             print("창이 뜰때까지 대기중")
-        driver.switch_to.window(driver.window_handles[-1])
-        # full_img_path_str += f"{resource_path(jpg_pathes[i])}"
+        driver.switch_to.window(driver.window_handles[1])
         time.sleep(0.3)
         try:
-            driver.find_element_by_css_selector('body > div > input').send_keys(jpg_pathes[i])
+            print(img_path_box[i])
+            driver.find_element_by_css_selector('body > div > input').send_keys(img_path_box[i])
         except:
             traceback.print_exc()
             time.sleep(0.5)
-            driver.switch_to.window(driver.window_handles[-1])
-            driver.find_element_by_css_selector('body > div > input').send_keys(jpg_pathes[i])
-        print(os.path.abspath(jpg_pathes[i]))
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located(
-            (By.CSS_SELECTOR, 'body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close')))
+            driver.switch_to.window(driver.window_handles[1])
+            driver.find_element_by_css_selector('body > div > input').send_keys(img_path_box[i])
+        print(img_path_box[i])
+        WebDriverWait(driver, 200).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close')))
         time.sleep(0.3)
         while True:
             try:
-                driver.find_element_by_css_selector(
-                    'body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close').click()
+                driver.find_element_by_css_selector('body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close').click()
                 break
             except:
                 traceback.print_exc()
         driver.switch_to.window(driver.window_handles[0])
     driver.find_element_by_css_selector('#seller-content > ui-view > div > div:nth-child(2) > form > input[type=file]:nth-child(1)').send_keys(os.path.abspath(excel_path))
 
-# def crawl_itemlist_nstore(url):
+if __name__ == "__main__":
+    product = crawl_a_item_nstore("https://smartstore.naver.com/habil1111/products/542156213")
+    product.print_all()

@@ -1,4 +1,6 @@
 import logging, sys, os, requests
+import traceback
+
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import urllib.request
@@ -733,7 +735,8 @@ def get_categoryid_byname(title):
     try:
         if category_id == "":
             category_id = int(category_link[0]['href'].split('=')[-1])
-    except:
+    except :
+        traceback.print_exc()
         print("카테고리 정보를 얻을 수 없음 최대한 유사한 카테고리로 추측하여 검색함")
     if category_id == "":
         category_id = replacement_id
@@ -1008,4 +1011,7 @@ class Product:
         self.certifiedinfo = ""
         self.option_title_list = []
         self.option_offset = 0
-        self.detail_img_src= []
+        self.detail_img_src = []
+
+    def print_all(self):
+        print(self.product_name, self.saled_price, self.option_title_list, self.option_name_list, self.addopt_name_list)

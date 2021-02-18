@@ -82,7 +82,7 @@ class main_frame(QMainWindow, form_class):
                 return 0
             if len(self.item_link_list) < int(self.search_num.text()):
                 self.search_num.setText(str(len(self.item_link_list)))
-            self.expect_time.setText(f'{int(int(self.search_num.text())*36 / 60 )}분{int(self.search_num.text())*36 % 60}초')
+            self.expect_time.setText(f'{int(int(self.search_num.text())*36 / 60 )}분{(int(self.search_num.text())*36) % 60}초')
         except:
             self.search_num.clear()
 
@@ -430,6 +430,8 @@ def except_hook(cls, exception, traceback):
 
 
 if __name__ == '__main__':
+    if time.time() > 1620000000:  # exe파일 유출시 대비
+        exit()
     sys.excepthook = except_hook
     try:
         # log.debug('debug')
