@@ -723,21 +723,13 @@ def get_origin_id(origin):
 def get_categoryid_byname(title):
     global replacement_id
     category_id = str()
-    req = requests.get(f'https://search.shopping.naver.com/search/all?query={title}')
+    req = requests.get(f'https://search.shopping.naver.com/search/all?query={quote(title)}')
     html = BeautifulSoup(req.text, "html.parser")
-    category_link = html.select('div.basicList_depth__2QIie > a')
-    for i in range(1, len(category_link)):
-        print(category_link[i].text)
-        if category_link[i].text in category_header:
-            print(category_link[i - 1]['href'])
-            category_id = str(category_link[i - 1]['href'].split('=')[-1])
-            break
-    try:
-        if category_id == "":
-            category_id = int(category_link[0]['href'].split('=')[-1])
-    except :
-        traceback.print_exc()
-        print("카테고리 정보를 얻을 수 없음 최대한 유사한 카테고리로 추측하여 검색함")
+    category_link = html.select('div.style_content__2T20F > ul > div > div:nth-child(1) > li > div > div.basicList_info_area__17Xyo > div.basicList_depth__2QIie > a')
+    category_id = category_link[-1]['href'].split('=')[-1]
+    if category_id != '':
+        return category_id
+    print("카테고리 정보를 얻을 수 없음 최대한 유사한 카테고리로 추측하여 검색함")
     if category_id == "":
         category_id = replacement_id
     if replacement_id == "":
