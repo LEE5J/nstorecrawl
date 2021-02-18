@@ -286,8 +286,8 @@ def upload_items(driver, excel_path, jpg_pathes):
             try:
                 driver.find_element_by_css_selector('body > div > div.nmu_main > div.nmu_button_area > button.nmu_button.nmu_button_close').click()
                 break
-            except:
-                traceback.print_exc()
+            except selenium.common.exceptions.ElementNotInteractableException:
+                pass
         driver.switch_to.window(driver.window_handles[0])
     driver.find_element_by_css_selector('#seller-content > ui-view > div > div:nth-child(2) > form > input[type=file]:nth-child(1)').send_keys(os.path.abspath(excel_path))
 
