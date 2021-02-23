@@ -11,8 +11,8 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5 import QtCore
 import selenium
 class ThreadClass(QtCore.QThread):
-    def __init__(self, parent = None):
-        super(ThreadClass,self).__init__(parent)
+    def __init__(self, parent=None):
+        super(ThreadClass, self).__init__(parent)
     def run(self):
         pass
         
@@ -158,51 +158,73 @@ def crawl_a_item_nstore(url):
     for a_sub_img in sub_img:
         product.sub_img_src.append(a_sub_img.get_attribute('data-src'))
     exit_cnt = 0
-    maxtime = time.time() + 20
+    maxtime = time.time() + 3
     driver.find_element_by_css_selector('body').send_keys(Keys.END)
+    index = 0
     while maxtime > time.time():
         detail_list = driver.find_elements_by_css_selector('div.se-main-container > div')
         detail_list += driver.find_elements_by_css_selector('div.se_component_wrap > div')
-        product.detail_html = "<center>"
+        detail_list += driver.find_elements_by_css_selector('#INTRODUCE > div > div:nth-child(5) > div > div')
+        print(len(detail_list))
         if len(detail_list) != 0:
+            if index == len(detail_list):
+                break
+            index = len(detail_list)
+            product.detail_html = "<center>"
             for detail_box in detail_list:
                 if 32000 < len(product.detail_html):
                     break
                 try:
-                    content = detail_box.find_element_by_css_selector('a > img')
-                    print("일반 이미지")
-                    if content != None:
-                        product.detail_img_src.append(content.get_attribute('data-src'))
-                        product.detail_html += f"<img src=\"{content.get_attribute('data-src')}\">"
+                    contents = detail_box.find_elements_by_css_selector('a > img')
+                    for content in contents:
+                        print("일반 이미지")
+                        if content != None:
+                            product.detail_img_src.append(content.get_attribute('data-src'))
+                            product.detail_html += f"<img src=\"{content.get_attribute('data-src')}\">"
+                    if len(contents) != 0:
                         continue
+
                 except selenium.common.exceptions.NoSuchElementException:
                     None
                 except:
                     traceback.print_exc()
                 try:
-                    content = detail_box.find_element_by_css_selector('div.se-section.se-section-material.se-section-align-center.se-l-default')  # 스토어팜 상품 링크
-                    print("하이퍼링크")
-                    if content != None:
-                        link = content.find_element_by_tag_name('a').get_attribute('href')
-                        img_link = content.find_element_by_tag_name('img').get_attribute('data-src')
-                        text = content.text.split('\n')
-                        product.detail_html += f"<span href=\"{link}\"><img src=\"{img_link}\"><strong>{text[0]} 가격 : {text[5]}</strong></span>"
+                    contents = detail_box.find_elements_by_css_selector('div.se-section.se-section-material.se-section-align-center.se-l-default')  # 스토어팜 상품 링크
+                    for content in contents:
+                        print("하이퍼링크")
+                        if content != None:
+                            link = content.find_element_by_tag_name('a').get_attribute('href')
+                            img_link = content.find_element_by_tag_name('img').get_attribute('data-src')
+                            text = content.text.split('\n')
+                            product.detail_html += f"<span href=\"{link}\"><img src=\"{img_link}\"><strong>{text[0]} 가격 : {text[5]}</strong></span>"
+                    if len(contents) != 0:
                         continue
                 except selenium.common.exceptions.NoSuchElementException:
-                    None
+                    pass
                 except:
                     traceback.print_exc()
                 try:
-                    content = detail_box.find_element_by_css_selector('div.se-section.se-section-text.se-l-default')
-                    print("텍스트")
-                    if content != None:
-                        word_list = content.text.split('\n')
-                        for word in word_list:
-                            product.detail_html += f"<p style=\" font-size:2em;color:#000000;\">{word}</p>"
+                    contents = detail_box.find_elements_by_css_selector('div.se-section.se-section-text.se-l-default')
+                    for content in contents:
+                        print("텍스트")
+                        if content != None:
+                            word_list = content.text.split('\n')
+                            for word in word_list:
+                                product.detail_html += f"<p style=\" font-size:2em;color:#000000;\">{word}</p>"
+                    if len(contents) != 0:
+                        continue
                 except selenium.common.exceptions.NoSuchElementException:
-                    None
+                    pass
                 except:
                     traceback.print_exc()
+                try:
+                    content = detail_box.text
+                    product.detail_html += f"<p style=\" font-size:2em;color:#000000;\">{content}</p>"
+                except:
+                    traceback.print_exc()
+        else:
+            continue
+
     product.detail_html += "</center>"
     if 32766 < len(product.detail_html):
         print("html 잘린부분있음")
@@ -290,6 +312,35 @@ def upload_items(driver, excel_path, jpg_pathes):
                 pass
         driver.switch_to.window(driver.window_handles[0])
     driver.find_element_by_css_selector('#seller-content > ui-view > div > div:nth-child(2) > form > input[type=file]:nth-child(1)').send_keys(os.path.abspath(excel_path))
+    maxtime = time.time() + 20
+    while maxtime > time.time():
+        if len(driver.find_elements_by_css_selector('div.modal-footer > div > button')) != 0:
+            print("엑셀 업로드 완료")
+            break
+        if len(driver.find_elements_by_css_selector('div.modal-footer > div > span > button')) != 0:
+            print("엑셀 업로드 실패")
+            break
+    url = "https://sell.smartstore.naver.com/#/products/origin-list"
+    driver.get(url)
+    time.sleep(0.5)
+    driver.get(url)
+    time.sleep(0.5)
+    driver.find_element_by_css_selector("ncp-datetime-range-picker2 > div:nth-child(1) > div > div > button:nth-child(1)").click()
+    driver.find_element_by_css_selector("div.panel-footer > div > button.btn.btn-primary").click()
+    time.sleep(0.5)
+    driver.find_element_by_css_selector('div.ag-pinned-left-header > div > div:nth-child(1) > div:nth-child(2) > div > label > span').click()
+    driver.find_element_by_css_selector('div.seller-btn-group > div.seller-btn-left > div > div:nth-child(2) > div:nth-child(1) > div.selectize-input.items.full.has-options.has-items.ng-valid.ng-pristine').click()
+    time.sleep(0.2)
+    driver.find_element_by_css_selector('div.seller-btn-left > div > div:nth-child(2) > div:nth-child(1) > div.selectize-dropdown.single.ng-pristine.ng-untouched.ng-valid > div > div:nth-child(3)').click()
+    time.sleep(0.5)
+    try:
+        driver.find_element_by_css_selector('div.modal-footer > div > span:nth-child(2) > button').click()
+        WebDriverWait(driver, 4).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-header.bg-primary > button')))
+    except selenium.common.exceptions.NoSuchElementException:
+        print("판매중지로 설정할 것이 없음")
+    driver.quit()
+
+
 
 if __name__ == "__main__":
     product = crawl_a_item_nstore("https://smartstore.naver.com/habil1111/products/542156213")

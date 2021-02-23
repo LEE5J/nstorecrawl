@@ -725,8 +725,11 @@ def get_categoryid_byname(title):
     category_id = str()
     req = requests.get(f'https://search.shopping.naver.com/search/all?query={quote(title)}')
     html = BeautifulSoup(req.text, "html.parser")
-    category_link = html.select('div.style_content__2T20F > ul > div > div:nth-child(1) > li > div > div.basicList_info_area__17Xyo > div.basicList_depth__2QIie > a')
-    category_id = category_link[-1]['href'].split('=')[-1]
+    try:
+        category_link = html.select_one('div > div.style_container__1YjHN > div > div.style_content_wrap__1PzEo > div.style_content__2T20F > ul > div > div:nth-child(2) > li > div > div.basicList_info_area__17Xyo > div.basicList_depth__2QIie > a:nth-child(4)')
+    except:
+        category_link = html.select_one('#__next > div > div.style_container__1YjHN > div > div.style_content_wrap__1PzEo > div.style_content__2T20F > ul > div > div:nth-child(2) > li > div > div.basicList_info_area__17Xyo > div.basicList_depth__2QIie > a:nth-child(3)')
+    category_id = category_link['href'].split('=')[-1]
     if category_id != '':
         return category_id
     print("카테고리 정보를 얻을 수 없음 최대한 유사한 카테고리로 추측하여 검색함")

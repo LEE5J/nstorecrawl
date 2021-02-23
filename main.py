@@ -308,7 +308,7 @@ class main_frame(QMainWindow, form_class):
         self.item_link_list = item_link_list
         self.max_search_num.setText(str(len(item_link_list)))
         self.search_num.setText(str(len(item_link_list)))
-        self.expect_time.setText(f'{int(len(item_link_list)*32 / 60 )}분{int(len(item_link_list)%4)*32}초')
+        self.expect_time.setText(f'{int(len(item_link_list)*32 / 60 )}분{int(len(item_link_list)*32)%60}초')
         minute = int(int(time.time() - start_time) / 60)
         sec = int(time.time() - start_time) % 60
         self.running_time.setText(f'{minute}분{sec}초')
@@ -354,7 +354,6 @@ class main_frame(QMainWindow, form_class):
             self.data_table.setItem(self.data_table.rowCount() - 1, 14, QTableWidgetItem(str(product.tag_list)))
         self.data_table.setItem(self.data_table.rowCount() - 1, 15, QTableWidgetItem(str(product.origin)))
         self.data_table.setItem(self.data_table.rowCount() - 1, 16, QTableWidgetItem(str(product.importer)))
-
         self.data_table.setItem(self.data_table.rowCount() - 1, 17, QTableWidgetItem(str(product.as_call_number)))
         self.data_table.setItem(self.data_table.rowCount() - 1, 18, QTableWidgetItem(str(product.as_info)))
         self.data_table.setItem(self.data_table.rowCount() - 1, 19, QTableWidgetItem(str(product.brand)))
@@ -370,9 +369,6 @@ class main_frame(QMainWindow, form_class):
             self.success_num.setText(str(int(self.success_num.text()) + 1))
             print(self.success_num.text() + "완료")
         except:
-            # print(sys.exc_info())
-            etype, evalue, tb = sys.exc_info()
-            traceback.print_exception(etype, evalue, tb)
             traceback.print_exc()
             product = Product()
             product.url = url
@@ -401,7 +397,6 @@ class main_frame(QMainWindow, form_class):
                 self.product_list.pop(error_index[-1-i])
             except:
                 traceback.print_exc()
-
         print("초기화 완료 재배치 시작")
         self.chkbox_list = []
         for i in range(len(self.product_list)):
