@@ -344,27 +344,70 @@ def upload_items(driver, excel_path, jpg_pathes):
         WebDriverWait(driver, 4).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-header.bg-primary > button')))
     except selenium.common.exceptions.NoSuchElementException:
         print("판매중지로 설정할 것이 없음")
-    # upload_options(driver)
+    prefix = excel_path.split('/')[-1].split('.')[0]
+    upload_options(driver, prefix)
     driver.quit()
 
 
-def upload_options(driver=webdriver.Chrome("chromedriver.exe")):
+def upload_options(driver, prefix):
     '''
     셀러로 등록했던 고유번호를 통해서 먼저 스토어팜 시스템에서 부여한 고유 번호를 취득한다.
     상품코드를 통해서 수정페이지로 들어간다.
     엑셀 업로드를 하고 저장버튼을 누르고 다음 상품 페이지로 넘어가도록 한다.
     '''
     # 셀러코드를 고유번호로 바꾸기
-    productcode_list = []
-    driver.get("https://sell.smartstore.naver.com/#/products/origin-list")
-    driver.find_element_by_css_selector('#seller-content > ui-view > div > ui-view:nth-child(1) > div.form-section.seller-status > ul > li:nth-child(1) > a > span > i').click()
-    driver.find_element_by_css_selector('#seller-content > ui-view > div > ui-view:nth-child(1) > div.panel.panel-seller > form > div.panel-body > div > ul > li:nth-child(1) > div > div > div:nth-child(1) > div > div:nth-child(2) > label > span').click()
     for i in range(len(seller_productcode)):
+        driver.get("https://sell.smartstore.naver.com/#/products/origin-list")
+        WebDriverWait(driver, 3).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, '#seller-content > ui-view > div > ui-view:nth-child(1) > div.form-section.seller-status > ul > li:nth-child(1) > a > span > i')))
+        time.sleep(1)
+        driver.find_element_by_css_selector('#seller-content > ui-view > div > ui-view:nth-child(1) > div.form-section.seller-status > ul > li:nth-child(1) > a > span > i').click()
+        driver.find_element_by_css_selector(
+            '#seller-content > ui-view > div > ui-view:nth-child(1) > div.panel.panel-seller > form > div.panel-body > div > ul > li:nth-child(1) > div > div > div:nth-child(1) > div > div:nth-child(2) > label > span').click()
+        try:
+            driver.find_element_by_css_selector('input.ng-valid.ng-dirty.ng-valid-parse.ng-touched.ng-empty').click()
+        except selenium.common.exceptions.ElementClickInterceptedException:
+            driver.find_element_by_css_selector('#seller-content > ui-view > div > ui-view:nth-child(1) > div.panel.panel-seller > form > div.panel-body > div > ul > li:nth-child(2) > div > div > div > label:nth-child(1) > span').click()
+        except selenium.common.exceptions.NoSuchElementException:
+            pass
         driver.find_element_by_css_selector('#seller-content > ui-view > div > ui-view:nth-child(1) > div.panel.panel-seller > form > div.panel-body > div > ul > li:nth-child(1) > div > div > div:nth-child(2) > textarea').send_keys(seller_productcode[i])
         driver.find_element_by_css_selector('#seller-content > ui-view > div > ui-view:nth-child(1) > div.panel.panel-seller > form > div.panel-footer > div > button.btn.btn-primary').click()
         time.sleep(0.5)
-        productcode_list.append(driver.find_element_by_css_selector('#seller-content > ui-view > div > ui-view:nth-child(2) > div.panel.panel-seller > div.panel-body > div.seller-grid-area > div > div > div > div > div.ag-body-viewport.ag-layout-normal.ag-row-no-animation > div.ag-pinned-left-cols-container > div > div:nth-child(4) > span > a').text)
-        print(productcode_list[-1])
+        # 수정 페이지로 들어가서 작업하기
+        driver.find_element_by_css_selector('#seller-content > ui-view > div > ui-view:nth-child(2) > div.panel.panel-seller > div.panel-body > div.seller-grid-area > div > div > div > div > div.ag-body-viewport.ag-layout-normal.ag-row-no-animation > div.ag-pinned-left-cols-container > div.ag-row.ag-row-no-focus.ag-row-even.ag-row-level-0.ag-row-position-absolute.ag-row-first > div:nth-child(2) > span > button').click()
+        WebDriverWait(driver, 3).until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, '#productForm > ng-include > ui-view:nth-child(9) > div > div > div > div > a.btn.btn-default')))
+        print(driver.current_url)
+        time.sleep(0.5)
+        try:
+            driver.find_element_by_css_selector('body > div.modal.seller-layer-modal.fade.in > div > div > div.modal-body > button > span').click()
+            time.sleep(0.3)
+            driver.find_element_by_css_selector('body').send_keys(Keys.END)
+            time.sleep(0.2)
+        except selenium.common.exceptions.NoSuchElementException:
+            pass
+        try:
+            driver.find_element_by_css_selector('#productForm > ng-include > ui-view:nth-child(9) > div > div > div > div > a.btn.btn-default.active')
+        except selenium.common.exceptions.NoSuchElementException:
+            driver.find_element_by_css_selector('#productForm > ng-include > ui-view:nth-child(9) > div > div > div > div > a.btn.btn-default').click()
+            time.sleep(0.2)
+        driver.find_element_by_css_selector('#productForm > ng-include > ui-view:nth-child(9) > div > fieldset > div > div > div:nth-child(1) > div > div > div > div > label:nth-child(2)').click()
+        time.sleep(0.2)
+        driver.find_element_by_css_selector('#productForm > ng-include > ui-view:nth-child(9) > div > fieldset > div > div > div:nth-child(2) > div:nth-child(1) > div > div > label.hidden-xs > span').click()
+        time.sleep(0.2)
+        driver.find_element_by_css_selector('body > label > input[type=file]').send_keys(f"{os.getcwd()}\\{prefix}\\{seller_productcode[i]}.xlsx")
+        time.sleep(0.5)
+        driver.find_element_by_css_selector('#seller-content > ui-view > div.pc-fixed-area.navbar-fixed-bottom.hidden-xs > div.btn-toolbar.pull-right > div:nth-child(1) > button.btn.btn-primary.progress-button.progress-button-dir-horizontal.progress-button-style-top-line > span.content').click()
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > button.btn.btn-primary')))
+        try:
+            driver.find_element_by_css_selector('body > div.modal.fade.seller-layer-modal.has-close-check-box.in > div > div > div.modal-footer > div.close-box.text-right > div > label > span').click()
+            driver.find_element_by_css_selector('body > div.modal.fade.seller-layer-modal.has-close-check-box.in > div > div > div.modal-footer > div.seller-btn-area > button.btn.btn-default').click()
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > button.btn.btn-primary')))
+        except selenium.common.exceptions.NoSuchElementException:
+            None
+
+
 
 
 

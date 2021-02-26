@@ -32,15 +32,7 @@ class main_frame(QMainWindow, form_class):
         self.current_row = 0
         self.show()
         self.id = None
-        try:
-            options = webdriver.ChromeOptions()
-            options.add_argument('--headless')
-            driver = webdriver.Chrome('chromedriver.exe', options=options)
-            driver.quit()
-        except selenium.common.exceptions.WebDriverException:
-            QMessageBox.about(self, "완료", "내보내기 완료")
-        except:
-            traceback.print_exc()
+
 
 
     def init_event(self):
@@ -424,6 +416,10 @@ def except_hook(cls, exception, traceback):
 
 
 if __name__ == '__main__':
+    try:
+        webdriver.Chrome('chromedriver.exe').quit()
+    except:
+        traceback.print_exc()
     if time.time() > 1644759600:  # exe파일 유출시 대비
         exit()
     sys.excepthook = except_hook
