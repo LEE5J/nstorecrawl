@@ -336,7 +336,6 @@ class main_frame(QMainWindow, form_class):
         self.data_table.setItem(self.data_table.rowCount()-1, 4, QTableWidgetItem(str(product.saled_price)))
         if len(product.option_name_list) != 0:
             self.data_table.setItem(self.data_table.rowCount()-1, 5, QTableWidgetItem(str(product.option_name_list)))
-        if len(product.option_price_list) != 0:
             self.data_table.setItem(self.data_table.rowCount()-1, 6, QTableWidgetItem(str(product.option_price_list)))
         if len(product.addopt_name_list) != 0:
             self.data_table.setItem(self.data_table.rowCount()-1, 7, QTableWidgetItem(str(product.addopt_name_list)))
@@ -425,7 +424,7 @@ def except_hook(cls, exception, traceback):
 
 
 if __name__ == '__main__':
-    if time.time() > 1620000000:  # exe파일 유출시 대비
+    if time.time() > 1644759600:  # exe파일 유출시 대비
         exit()
     sys.excepthook = except_hook
     try:

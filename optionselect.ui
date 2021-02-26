@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>893</width>
+    <height>520</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>옵션정보수정</string>
+  </property>
+  <widget class="QTableWidget" name="option_table">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>871</width>
+     <height>501</height>
+    </rect>
+   </property>
+   <column>
+    <property name="text">
+     <string>옵션1</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>옵션2</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>옵션3</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>옵션가</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>제거</string>
+    </property>
+   </column>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
