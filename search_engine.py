@@ -193,15 +193,9 @@ def get_detail_html(driver, product):
     driver.find_element_by_css_selector('body').send_keys(Keys.END)
     time.sleep(0.5)
     driver.find_element_by_css_selector('body').send_keys(Keys.HOME)
-    if driver.find_elements_by_css_selector('#INTRODUCE > div > div:nth-child(5) > div > div') != []:
-        print("get_detail_html 에서 html 타입 처리중")
-        req = driver.page_source
-        html = BeautifulSoup(req, 'html.parser')
-        product.detail_html = trim_html(str(html.select_one('#INTRODUCE > div > div:nth-child(5) > div > div')))
-    elif 0 != len(driver.find_elements_by_css_selector('div.se-main-container > div') + driver.find_elements_by_css_selector('div.se_component_wrap > div')):
+    if 0 != len(driver.find_elements_by_css_selector('div.se-component')):
         print("get_detail_html 에서 스마일에디터 타입 처리중")
-        detail_list = driver.find_elements_by_css_selector('div.se-main-container > div')
-        detail_list += driver.find_elements_by_css_selector('div.se_component_wrap > div')
+        detail_list = driver.find_elements_by_css_selector('div.se-component')
         product.detail_html = "<center>"
         for detail_box in detail_list:
             if 32000 < len(product.detail_html):
@@ -254,6 +248,11 @@ def get_detail_html(driver, product):
             except:
                 traceback.print_exc()
         product.detail_html += "</center>"
+    elif driver.find_elements_by_css_selector('#INTRODUCE > div > div:nth-child(5) > div > div') != []:
+        print("get_detail_html 에서 html 타입 처리중")
+        req = driver.page_source
+        html = BeautifulSoup(req, 'html.parser')
+        product.detail_html = trim_html(str(html.select_one('#INTRODUCE > div > div:nth-child(5) > div > div')))
     else:
         print("get_detail_html에서 내용 확인 실패")
     if product.detail_html == "":
@@ -358,9 +357,13 @@ def upload_options(driver, prefix):
     # 셀러코드를 고유번호로 바꾸기
     for i in range(len(seller_productcode)):
         driver.get("https://sell.smartstore.naver.com/#/products/origin-list")
-        WebDriverWait(driver, 3).until(EC.presence_of_element_located(
-            (By.CSS_SELECTOR, '#seller-content > ui-view > div > ui-view:nth-child(1) > div.form-section.seller-status > ul > li:nth-child(1) > a > span > i')))
-        time.sleep(1)
+        try:
+            WebDriverWait(driver, 3).until(EC.presence_of_element_located(
+                (By.CSS_SELECTOR, '#seller-content > ui-view > div > ui-view:nth-child(1) > div.form-section.seller-status > ul > li:nth-child(1) > a > span > i')))
+        except selenium.common.exceptions.TimeoutException:
+            driver.get("https://sell.smartstore.naver.com/#/products/origin-list")
+            WebDriverWait(driver, 3).until(EC.presence_of_element_located(
+                (By.CSS_SELECTOR, '#seller-content > ui-view > div > ui-view:nth-child(1) > div.form-section.seller-status > ul > li:nth-child(1) > a > span > i')))
         driver.find_element_by_css_selector('#seller-content > ui-view > div > ui-view:nth-child(1) > div.form-section.seller-status > ul > li:nth-child(1) > a > span > i').click()
         driver.find_element_by_css_selector(
             '#seller-content > ui-view > div > ui-view:nth-child(1) > div.panel.panel-seller > form > div.panel-body > div > ul > li:nth-child(1) > div > div > div:nth-child(1) > div > div:nth-child(2) > label > span').click()
@@ -377,11 +380,17 @@ def upload_options(driver, prefix):
         driver.find_element_by_css_selector('#seller-content > ui-view > div > ui-view:nth-child(2) > div.panel.panel-seller > div.panel-body > div.seller-grid-area > div > div > div > div > div.ag-body-viewport.ag-layout-normal.ag-row-no-animation > div.ag-pinned-left-cols-container > div.ag-row.ag-row-no-focus.ag-row-even.ag-row-level-0.ag-row-position-absolute.ag-row-first > div:nth-child(2) > span > button').click()
         WebDriverWait(driver, 3).until(EC.presence_of_element_located(
             (By.CSS_SELECTOR, '#productForm > ng-include > ui-view:nth-child(9) > div > div > div > div > a.btn.btn-default')))
-        print(driver.current_url)
         time.sleep(0.5)
+        print(driver.current_url, " 의 옵션을 수정합니다")
         try:
             driver.find_element_by_css_selector('body > div.modal.seller-layer-modal.fade.in > div > div > div.modal-body > button > span').click()
             time.sleep(0.3)
+            driver.find_element_by_css_selector('body').send_keys(Keys.END)
+            driver.find_element_by_css_selector('#_prod-attr-section > div.title-line').click()
+            time.sleep(0.3)
+            driver.find_element_by_css_selector('body').send_keys(Keys.END)
+            time.sleep(0.3)
+            driver.find_element_by_css_selector('#_prod-attr-section > div.inner-content.input-content > div > div:nth-child(3) > div > div > label:nth-child(4)').click()
             driver.find_element_by_css_selector('body').send_keys(Keys.END)
             time.sleep(0.2)
         except selenium.common.exceptions.NoSuchElementException:
@@ -389,7 +398,8 @@ def upload_options(driver, prefix):
         try:
             driver.find_element_by_css_selector('#productForm > ng-include > ui-view:nth-child(9) > div > div > div > div > a.btn.btn-default.active')
         except selenium.common.exceptions.NoSuchElementException:
-            driver.find_element_by_css_selector('#productForm > ng-include > ui-view:nth-child(9) > div > div > div > div > a.btn.btn-default').click()
+            driver.find_element_by_css_selector('body').send_keys(Keys.END)
+            driver.find_element_by_css_selector('#productForm > ng-include > ui-view:nth-child(9) > div > div').click()
             time.sleep(0.2)
         driver.find_element_by_css_selector('#productForm > ng-include > ui-view:nth-child(9) > div > fieldset > div > div > div:nth-child(1) > div > div > div > div > label:nth-child(2)').click()
         time.sleep(0.2)
@@ -397,15 +407,19 @@ def upload_options(driver, prefix):
         time.sleep(0.2)
         driver.find_element_by_css_selector('body > label > input[type=file]').send_keys(f"{os.getcwd()}\\{prefix}\\{seller_productcode[i]}.xlsx")
         time.sleep(0.5)
-        driver.find_element_by_css_selector('#seller-content > ui-view > div.pc-fixed-area.navbar-fixed-bottom.hidden-xs > div.btn-toolbar.pull-right > div:nth-child(1) > button.btn.btn-primary.progress-button.progress-button-dir-horizontal.progress-button-style-top-line > span.content').click()
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > button.btn.btn-primary')))
         try:
-            driver.find_element_by_css_selector('body > div.modal.fade.seller-layer-modal.has-close-check-box.in > div > div > div.modal-footer > div.close-box.text-right > div > label > span').click()
-            driver.find_element_by_css_selector('body > div.modal.fade.seller-layer-modal.has-close-check-box.in > div > div > div.modal-footer > div.seller-btn-area > button.btn.btn-default').click()
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > button.btn.btn-primary')))
-        except selenium.common.exceptions.NoSuchElementException:
-            None
+            driver.find_element_by_css_selector('#_prod-attr-section > div.inner-content.input-content > div > div:nth-child(3) > div > div > label:nth-child(4)').click()
+        except:
+            pass
+        driver.find_element_by_css_selector('#seller-content > ui-view > div.pc-fixed-area.navbar-fixed-bottom.hidden-xs > div.btn-toolbar.pull-right > div:nth-child(1) > button.btn.btn-primary.progress-button.progress-button-dir-horizontal.progress-button-style-top-line').click()
+        try:
+            WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > button.btn.btn-default')))
+            time.sleep(1)
+            driver.find_element_by_css_selector('body > div.modal.fade.seller-layer-modal.in > div > div > div.modal-footer > div > button.btn.btn-default').click()
+            time.sleep(2)
+        except selenium.common.exceptions.TimeoutException:
+            print(f"\n\n\nupload_options에서 에러 발생 {driver.current_url}옵션 정보 로딩 실패\n\n\n")
+            continue
 
 
 
@@ -415,5 +429,5 @@ def upload_options(driver, prefix):
 
 
 if __name__ == "__main__":
-    product = crawl_a_item_nstore("https://smartstore.naver.com/pandaworld/products/5197005414")
+    product = crawl_a_item_nstore("https://smartstore.naver.com/goodpost/products/5220134535")
     product.print_all()

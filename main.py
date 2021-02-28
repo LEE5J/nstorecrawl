@@ -179,6 +179,7 @@ class main_frame(QMainWindow, form_class):
                           '상품정보제공고시 제조자', '스토어찜회원 전용여부', '문화비 소득공제', 'ISBN', '독립출판']
         data = []
         self.jpg_pathes = []
+        seller_productcode.clear()
         for i, product in enumerate(self.product_list):
             try:
                 data.append(convert_to_frame(product, f"{prefix}{i}", i, self.jpg_pathes))

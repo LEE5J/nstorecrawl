@@ -5,7 +5,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import urllib.request
 import pandas as pd
-from urllib.parse import quote
+from requests.utils import requote_uri
 
 def resource_path(relative_path):
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
@@ -582,8 +582,8 @@ def make_logger(name=None):
     return logger
 
 def converturl(url):
-    temp_url = url.replace('https://', '').replace('http://', '')
-    return "https://" + quote(temp_url)
+
+    return requote_uri(url)
 
 def search_category(search_word):
     result = str()
@@ -597,7 +597,6 @@ def return_int(text):
     text = text.replace('(', '').replace(')', '').replace('원', '').replace(',', '').replace('품절', '')
     try:
         price = int(text)
-        print(text + "를 가격으로 변환")
     except:
         print(text + "를 가격으로 변환실패")
         price = 0
@@ -724,19 +723,20 @@ def get_origin_id(origin):
 def get_categoryid_byname(title):
     global replacement_id
     category_id = str()
-    req = requests.get(f'https://search.shopping.naver.com/search/all?query={quote(title)}')
+    req = requests.get(f'https://search.shopping.naver.com/search/all?query={requote_uri(title)}')
     html = BeautifulSoup(req.text, "html.parser")
-    try:
-        category_link = html.select_one('ul.list_basis > div > div > li > div > div.basicList_info_area__17Xyo > div.basicList_depth__2QIie > a:nth-child(4)')
-        category_id = category_link['href'].split('=')[-1]
-    except TypeError:
-        category_link = html.select_one('ul.list_basis > div > div > li > div > div.basicList_info_area__17Xyo > div.basicList_depth__2QIie > a:nth-child(3)')
-        category_id = category_link['href'].split('=')[-1]
-        print("카테고리 정보를 얻을 수 없음 최대한 유사한 카테고리로 추측하여 검색함")
-        if category_id == "":
+    category_link = html.select_one('ul.list_basis > div > div > li > div > div.basicList_info_area__17Xyo > div.basicList_depth__2QIie > a:nth-child(4)')
+    alt_category_link = html.select_one('ul.list_basis > div > div > li > div > div.basicList_info_area__17Xyo > div.basicList_depth__2QIie > a:nth-child(3)')
+    if category_link == None:
+        if alt_category_link == None:
+            print("카테고리 정보를 얻을 수 없음 최대한 유사한 카테고리로 추측하여 검색함")
             category_id = replacement_id
-        if category_id == "":
-            category_id = '50000020'
+            if category_id == "":
+                category_id = '50000020'
+        else:
+            category_id = alt_category_link['href'].split('=')[-1]
+    else:
+        category_id = category_link['href'].split('=')[-1]
     if replacement_id == "":
         replacement_id = category_id
     return category_id
@@ -832,6 +832,7 @@ def convert_to_frame(product, prefix, index,jpg_pathes):
             urllib.request.urlretrieve(converturl(product.detail_img_src[i]), f"{path}/detail/{prefix}_detailimg{i}.jpg")
         except:
             print("수집 불가" + converturl(product.detail_img_src[i]))
+            print("원본 url = ", product.detail_img_src[i])
     if product.option_layer > 1:
         product.seller_code = export_option(product.option_name_list)
     line.append(product.detail_html)  # 상품 상세정보
