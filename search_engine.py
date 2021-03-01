@@ -30,7 +30,7 @@ def crawl_a_item_nstore(url):
     # 품절 여부 확인
     try:
         driver.implicitly_wait(2)
-        infotext = driver.find_element_by_css_selector('fieldset > div._2BQ-WF2QUb > strong').text
+        infotext = driver.find_element_by_css_selector('#content > div > div._2-I30XS1lA > div._2QCa6wHHPy > fieldset > div._2BQ-WF2QUb > strong').text
         if "구매하실 수 없는" in infotext:
             print(infotext)
             product.product_name = "판매중지상품"
@@ -86,8 +86,6 @@ def crawl_a_item_nstore(url):
             firstoptions = driver.find_elements_by_css_selector('fieldset > div.Klq2ZNy50Z > div > ul > li > a')
         if option_layer == 1:
             for i in range(len(firstoptions)):
-                if "품절" in firstoptions[i].text:
-                    continue
                 option_name1, option_price = get_nameNprice(firstoptions[i].text)
                 product.option_name_list.append(option_name1)
                 product.option_price_list.append(option_price)

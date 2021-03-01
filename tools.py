@@ -798,6 +798,8 @@ def convert_to_frame(product, prefix, index,jpg_pathes):
     line.append(product.product_status)  # 상품상태
     line.append(product.category_id)  # 카테고리 id
     line.append(product.product_name)  # 상품명
+    if product.original_price == product.saled_price:
+        product.original_price += 10
     line.append(product.original_price)  # 판매가 = 할인전 가격
     line.append(999)  # 재고수량
     line.append(product.as_info)  # A/S 안내내용
