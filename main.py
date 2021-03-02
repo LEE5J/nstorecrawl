@@ -223,7 +223,7 @@ class main_frame(QMainWindow, form_class):
         icon = QIcon(pixmap)
         btn = QPushButton()
         btn.setIcon(icon)
-        btn.setIconSize(QSize(100,90))
+        btn.setIconSize(QSize(100, 90))
         btn.setFixedSize(100, 90)
         btn.pressed.connect(lambda: webbrowser.open(url))
         return btn

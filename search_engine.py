@@ -246,11 +246,11 @@ def get_detail_html(driver, product):
             except:
                 traceback.print_exc()
         product.detail_html += "</center>"
-    elif driver.find_elements_by_css_selector('#INTRODUCE > div > div:nth-child(5) > div > div') != []:
+    elif driver.find_elements_by_css_selector('#INTRODUCE > div > div > div._9F9CWn02VE > div') != []:
         print("get_detail_html 에서 html 타입 처리중")
         req = driver.page_source
         html = BeautifulSoup(req, 'html.parser')
-        product.detail_html = trim_html(str(html.select_one('#INTRODUCE > div > div:nth-child(5) > div > div')))
+        product.detail_html = trim_html(str(html.select_one('#INTRODUCE > div > div > div._9F9CWn02VE > div')))
     else:
         print("get_detail_html에서 내용 확인 실패")
     if product.detail_html == "":
@@ -258,7 +258,9 @@ def get_detail_html(driver, product):
         for i in range(50):
             driver.find_element_by_css_selector('body').send_keys(Keys.PAGE_DOWN)
             time.sleep(0.3)
-        product.detail_html = trim_html(html.select_one('#INTRODUCE > div > div:nth-child(5) > div > div'))
+        req = driver.page_source
+        html = BeautifulSoup(req, 'html.parser')
+        product.detail_html = trim_html(html.select_one('#INTRODUCE > div > div > div._9F9CWn02VE > div'))
     if 32766 < len(product.detail_html):
         print("html 잘린부분있음")
         product.detail_html = product.detail_html[0:32765]
