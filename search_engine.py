@@ -191,9 +191,9 @@ def get_detail_html(driver, product):
     driver.find_element_by_css_selector('body').send_keys(Keys.END)
     time.sleep(0.5)
     driver.find_element_by_css_selector('body').send_keys(Keys.HOME)
-    if 0 != len(driver.find_elements_by_css_selector('div.se-component')):
+    if 0 != len(driver.find_elements_by_css_selector('div.se-component') + driver.find_elements_by_css_selector('div.se_component')):
         print("get_detail_html 에서 스마일에디터 타입 처리중")
-        detail_list = driver.find_elements_by_css_selector('div.se-component')
+        detail_list = driver.find_elements_by_css_selector('div.se-component') + driver.find_elements_by_css_selector('div.se_component')
         product.detail_html = "<center>"
         for detail_box in detail_list:
             if 32000 < len(product.detail_html):
