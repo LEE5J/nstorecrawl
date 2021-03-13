@@ -860,14 +860,17 @@ def convert_to_frame(product, prefix, index,jpg_pathes):
         line.append("")  # 원산지 직접입력
     line.append("택배‚ 소포‚ 등기")  # 배송방법
     if product.delivery_fee == 0:
-        line.append("무료")
-        line.append("")
+        line.append("무료")  # 배송비 유형
+        line.append("")  # 기본배송비
+        line.append("")  # 배송비 결제방식
+        line.append("")  # 조건부 무료-상품판매가 합계
+        line.append("")  # 수량별부과-수량
     else:
-        line.append("유료")  # 배송비 유형
+        line.append("수량별")  # 배송비 유형
         line.append(product.delivery_fee)  # 기본배송비
-    line.append("착불 또는 선결제")  # 착불또는 선결제
-    line.append("")  # 조건부 무료-상품판매가 합계
-    line.append("")  # 수량별부과-수량
+        line.append("선결제")  # 배송비 결제방식
+        line.append("")  # 조건부 무료-상품판매가 합계
+        line.append(1)  # 수량별부과-수량
     line.append(product.return_fee)  # 반품배송비
     line.append(product.return_fee * 2)  # 교환배송비
     line.append("")  # 지역별 차등 배송비
@@ -902,7 +905,7 @@ def convert_to_frame(product, prefix, index,jpg_pathes):
         option_name = str()
         for i in range(len(product.option_name_list)):
             if "(품절)" in product.option_name_list[i]:
-                product.option_name_list[i] = product.option_name_list[i].replace("(품절)",'')
+                product.option_name_list[i] = product.option_name_list[i].replace("(품절)", '')
             if len(product.option_name_list[i]) > 24 :
                 product.option_name_list[i] = product.option_name_list[i][-24:]
             option_name += product.option_name_list[i]

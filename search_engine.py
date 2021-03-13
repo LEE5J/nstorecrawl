@@ -199,7 +199,7 @@ def get_detail_html(driver, product):
             if 32000 < len(product.detail_html):
                 break
             try:
-                contents = detail_box.find_elements_by_css_selector('a > img')
+                contents = detail_box.find_elements_by_css_selector('div > a > img')
                 for content in contents:
                     print("일반 이미지")
                     if content != None:
@@ -325,6 +325,7 @@ def upload_items(driver, excel_path, jpg_pathes):
         if len(driver.find_elements_by_css_selector('div.modal-footer > div > span > button')) != 0:
             print("엑셀 업로드 실패", maxtime - time.time())
             return -1
+
     url = "https://sell.smartstore.naver.com/#/products/origin-list"
     driver.get(url)
     time.sleep(0.5)

@@ -417,21 +417,9 @@ def except_hook(cls, exception, traceback):
 
 
 if __name__ == '__main__':
-    try:
-        webdriver.Chrome('chromedriver.exe').quit()
-    except:
-        traceback.print_exc()
     if time.time() > 1644759600:  # exe파일 유출시 대비
         exit()
     sys.excepthook = except_hook
-    try:
-        # log.debug('debug')
-    # log.info('info')
-    # log.warning('warning')
-    # log.error('error')
-    # log.critical('critical')
-        app = QApplication(sys.argv)
-        ex = main_frame()
-        sys.exit(app.exec_())
-    except:
-        traceback.print_exc()
+    app = QApplication(sys.argv)
+    ex = main_frame()
+    sys.exit(app.exec_())
